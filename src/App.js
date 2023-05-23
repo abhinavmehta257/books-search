@@ -2,7 +2,8 @@ import { useEffect } from "react";
 import "./App.css";
 import ListComponents from "./components/ListComponents";
 import axios from "axios";
-
+import { fetchDataSuccess, fetchDataFailure } from "./redux";
+import { useDispatch, useSelector } from "react-redux";
 let APIres = {
   pagination: {
     sortDirection: "DESC",
@@ -66,19 +67,23 @@ let APIres = {
 };
 
 function App() {
+  const isLoading = useSelector((state) => state.data.loading);
+  const dispatch = useDispatch();
   useEffect(() => {
-    // axios
-    //   .get("http://68.178.162.203:8080/application-test-v1.1/books")
-    //   .then(function (response) {
-    //     // handle success
-    //     console.log(response);
-    //   });
+    axios
+      .get("http://68.178.162.203:8080/application-test-v1.1/books")
+      .then((response) => {
+        const data = response.data;
+        console.log("test", data);
+        dispatch(fetchDataSuccess(data));
+      })
+      .catch((error) => {
+        dispatch(fetchDataFailure(error.message));
+      });
   }, []);
 
   return (
-    <div className="App">
-      <ListComponents books={APIres.data} />
-    </div>
+    <div className="App">{!isLoading ? <ListComponents /> : "loading"}</div>
   );
 }
 
